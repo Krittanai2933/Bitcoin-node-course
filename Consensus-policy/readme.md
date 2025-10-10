@@ -79,6 +79,67 @@ enum class TxValidationResult { ... };
 | `TX_RECONSIDERABLE`      | ล้มเหลวจาก policy แต่สามารถพิจารณาใหม่ได้ในแพ็กเกจใหญ่              |
 | `TX_UNKNOWN`             | ไม่สามารถตรวจสอบเพราะ package ล้มเหลว                               |
 
+เราทำความรู้จักกับคลาสที่ไว้ตรวจสอบธุรกรรมไปแล้ว ต่อไปเรามาดูคลาสที่ใช้ตรวจสอบ block กับต่อดีกว่ากับคลาสที่ชื่อว่า
+```
+enum class BlockValidationResult { ... };
+```
+หน้าที่ของคลาส BlockValidationResult มีเพื่อใช้ระบุว่าทำไมบล๊อก (Block) ถึงไม่ผ่านการตรวจสอบ เพื่อให้โหนดรู้ว่าควร “แค่ปฏิเสธ” หรือ “ลงโทษ (ban)” โหนดที่ส่งมาหรือไม่ โดยมี ทั้งหมด 8 กรณี ดังนี้
+| ค่าคงที่                | ความหมาย                                        |
+| ----------------------- | ----------------------------------------------- |
+| `BLOCK_CONSENSUS`       | ผิดกฎฉันทามติ (เช่น ลายเซ็น, ขนาด, PoW)         |
+| `BLOCK_INVALID_HEADER`  | header ผิด (เช่น hash < target ไม่ผ่าน)         |
+| `BLOCK_MUTATED`         | ข้อมูลบล็อกไม่ตรงกับที่ PoW ระบุ                |
+| `BLOCK_MISSING_PREV`    | ไม่มีบล็อกก่อนหน้า (chain ขาด)                  |
+| `BLOCK_INVALID_PREV`    | บล็อกก่อนหน้านั้นไม่ถูกต้อง                     |
+| `BLOCK_TIME_FUTURE`     | timestamp เดินหน้าเกิน 2 ชั่วโมงจากเวลาปัจจุบัน |
+| `BLOCK_CHECKPOINT`      | ไม่ตรงกับ checkpoint ที่กำหนดไว้                |
+| `BLOCK_HEADER_LOW_WORK` | header อยู่บน chain ที่มี work น้อยเกินไป       |
+
+และทั้งสองคลาสนี้จะถูกรวมกันเพื่อแสดงผลในคลาส `ValidationState<Result>` ซึ่งเป็น template class ที่ใช้ร่วมกันได้ทั้งกับ Transaction และ Block ใช้เก็บข้อมูลสถานะของการตรวจสอบ เช่น
+- ผ่านหรือไม่ (M_VALID, M_INVALID, M_ERROR)
+- เหตุผลที่ถูกปฏิเสธ (reject_reason)
+- ข้อความดีบัก (debug_message)
+- ประเภทของผล (Result)
+โดยมี method สำคัญ ๆ ดังนี้
+
+| metthod                                     | หน้าที่                                                          |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `Invalid(result, reason, debug)`          | ตั้งสถานะเป็น invalid และบันทึกเหตุผล                            |
+| `Error(reason)`                           | เกิด error ภายใน (runtime error)                                 |
+| `IsValid()` / `IsInvalid()` / `IsError()` | ตรวจสถานะปัจจุบัน                                                |
+| `ToString()`                              | แปลงเป็นข้อความสรุป เช่น `"TX_CONSENSUS, bad-txns-inputs-spent"` |
+
+สุดท้ายของไฟล์นี้จะเป็น function ที่เกี่ยวข้องกับการคำนวนน้ำหนักของ block ที่มีการใช้ witness และ การตรวจว่าบล๊อกน้ัน ๆ มี witness หรือไม่
+```
+133 static inline int32_t GetTransactionWeight(const CTransaction& tx)
+{
+    return ::GetSerializeSize(TX_NO_WITNESS(tx)) * (WITNESS_SCALE_FACTOR - 1)
+         + ::GetSerializeSize(TX_WITH_WITNESS(tx));
+}
+```
+ฟังก์ชั่นนี้ใช้ในการคำนวนน้ำหนักของธุรกรรม โดยจะนำธุรกรรมในส่วนที่ไม่ใช่ witness คูณด้วย 3 และบวกด้วยน้ำหนักในส่วนของ witness โดยนอกจากจะใช้เพื่อเช็คน้ำหนักของธุรกรรมแล้วยังใช้เช็คในเรื่องของค่าธรรมเนียมได้อีกด้วย และนอกจากนี้แล้วยังมี function ที่คล้าย ๆ กันอีกจำนวนหนึ่ง คือ
+
+- GetTransactionWeight(tx)
+- GetBlockWeight(block)
+- GetTransactionInputWeight(txin)
+
+```
+148 inline int GetWitnessCommitmentIndex(const CBlock& block)
+```
+ฟังก์ชันนี้ ใช้หา “ตำแหน่งของ output” ใน coinbase ที่มี witness commitment ตาม BIP141 โดยจะเช็กว่ามี OP_RETURN ตามด้วย signature 0x24 aa21a9ed หรือไม่และแบ่งออกเป็น 2 กรณี ดังนี้
+- ถ้าเจอ → ให้คืนค่าตำแหน่ง index ของ output นั้น
+- ถ้าไม่เจอ → ให้คืนค่า -1 (คือ NO_WITNESS_COMMITMENT)
+
+เนื่องจากไฟล์นี้ค่อนข้างยาว ผมมีสรุปมาให้หวังว่าจะช่วยให้เข้าใจมากขึ้นนะครับ
+| หมวด                          | หน้าที่                                         | ตัวอย่าง                                                    |
+| ----------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
+| **Validation Result Enums**   | แบ่งประเภทความผิดพลาดของ tx/block               | `TX_CONSENSUS`, `BLOCK_MUTATED`                             |
+| **ValidationState Class**     | เก็บสถานะผลตรวจสอบ                              | ใช้โดยฟังก์ชัน `CheckTransaction()` และ `ProcessNewBlock()` |
+| **Weight Calculation**        | คำนวณน้ำหนักจริงของบล็อกตาม BIP141              | จำกัดบล็อก 4,000,000 weight units                           |
+| **Witness Commitment Helper** | หา output witness commitment                    | ใช้ตรวจสอบ SegWit coinbase                                  |
+| **Integration**               | ใช้โดยไฟล์ `validation.cpp` และ `tx_verify.cpp` | ตอบว่า “valid หรือ invalid และเพราะอะไร”                    |
+
+  
 นอกจากนี้ใน consensus ยังมีอีกหลายไฟล์ไม่ว่าจะเป็น `markle.cpp`, `markle.h` ที่เป็นวิธีในการคำนวณ merkle root, `tx_check.cpp`, `tx_check.h`, `tx_verify.cpp`,`tx_verify.h` ที่ใช้ check เกี่ยวกับ transaction เช่นส่วนไหนขนาดเท่าไหร่ มีการใช้ input ที่มีอยู่จริงมั้ย
 `params.h` ที่คอยเก็บพารามิเตอร์ที่อาจต่างกันระหว่างเครือข่าย ไม่ว่าจะเป็น mainnet, testnet, regtest
 ## relay policy
