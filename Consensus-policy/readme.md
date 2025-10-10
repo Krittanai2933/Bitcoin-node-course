@@ -49,5 +49,36 @@ Consensus rules คือกฎพื้นฐานซึ่งทำหน้�
 - LOCKTIME_VERIFY_SEQUENCE: ธง (flag) ที่ระบุให้ระบบตีความ nSequence เป็น relative lock-time → ใช้ในฟีเจอร์เช่น CheckSequenceVerify (CSV)
 - MAX_TIMEWARP: ข้อจำกัดของเวลาระหว่างช่วง difficulty adjustment  ตาม BIP94, timestamp ของบล็อกในรอบปรับความยาก (2016 blocks) สามารถย้อนหลังได้มากที่สุด 600 วินาที (10 นาที) จากบล็อกสุดท้ายของรอบก่อนหน้า
 
+3. validation.h
+คุณสามารถหาไฟล์นี้ได้ที่ `bitcoin\src\consensus\validation.h` โดยไฟล์นี้ทำหน้าที่นิยามโครงสร้างและฟังก์ชันที่ใช้ระบุสถานะของการตรวจสอบบล็อกและธุรกรรม
+ใช้ได้ทั้งในระดับ:
+- Transaction validation — ตรวจสอบว่า TX ถูกตามกฎ consensus และ policy หรือไม่
+- Block validation — ตรวจสอบว่า block ถูกตามกฎ consensus เช่น PoW, timestamp, หรือ SegWit หรือไม่
+โดย code ต่อไปนี้คือจุดที่อธิบายเรื่องพวกนี้ไว้
+```
+15 static constexpr int NO_WITNESS_COMMITMENT{-1};
+18 static constexpr size_t MINIMUM_WITNESS_COMMITMENT{38};
+```
+โค้ดในส่วนนี้อธิบายค่าคงที่เกี่ยวกับ Witness Commitment แบบสั้น ๆ คือ coinbase transaction ของบล็อกที่รองรับ SegWit จะต้องมี “witness commitment” หรือก็คือค่า hash ของ witness root (อ่านเรื่องนี้เพิ่มเติมได้ใน BIP141) โดยมีค่าคงที่กำหนดไว้ 2 ตัว คือ NO_WITNESS_COMMITMENT ที่ = -1 ซึ่งแปลว่าไม่มี witness commitment และ MINIMUM_WITNESS_COMMITMENT คือขนาดขั้นต่ำของ witness commitment (ป้องกันการกำหนดค่าผิดโครงสร้าง)
+```
+enum class TxValidationResult { ... };
+```
+ในส่วนของคลาส TxValidationResult มีเพื่อใช้ระบุว่าทำไมธุรกรรม (transaction) ถึงไม่ผ่านการตรวจสอบ เพื่อให้โหนดรู้ว่าควร “แค่ปฏิเสธ” หรือ “ลงโทษ (ban)” โหนดที่ส่งมาหรือไม่ โดยมี ทั้งหมด 12 กรณี ดังนี้
+| ค่าคงที่                 | ความหมาย                                                            |
+| ------------------------ | ------------------------------------------------------------------- |
+| `TX_CONSENSUS`           | ผิดตาม **กฎฉันทามติ** (เช่น ใช้ UTXO ซ้ำ, ลายเซ็นไม่ถูกต้อง)        |
+| `TX_INPUTS_NOT_STANDARD` | อินพุตไม่เป็นไปตาม **policy** (ไม่ใช่ consensus แต่ node ปฏิเสธเอง) |
+| `TX_NOT_STANDARD`        | ไม่เป็นธุรกรรมที่ node ยอมรับไว้ใน mempool                          |
+| `TX_MISSING_INPUTS`      | ขาดอินพุตที่จำเป็น (อาจยังไม่ได้รับ UTXO)                           |
+| `TX_PREMATURE_SPEND`     | พยายามใช้ coinbase ก่อนครบ 100 blocks หรือผิด locktime/sequence     |
+| `TX_WITNESS_MUTATED`     | witness ถูกดัดแปลงผิดรูปแบบ (ผิดตาม BIP141)                         |
+| `TX_WITNESS_STRIPPED`    | ขาดข้อมูล witness ทั้งที่ควรมี                                      |
+| `TX_CONFLICT`            | ธุรกรรมขัดแย้งกับที่อยู่ใน chain หรือ mempool แล้ว                  |
+| `TX_MEMPOOL_POLICY`      | ละเมิดข้อจำกัด mempool (เช่น ขนาดใหญ่เกิน หรือค่าธรรมเนียมต่ำเกิน)  |
+| `TX_NO_MEMPOOL`          | โหนดนี้ไม่มี mempool (เช่น โหมด prune หรือ block-only)              |
+| `TX_RECONSIDERABLE`      | ล้มเหลวจาก policy แต่สามารถพิจารณาใหม่ได้ในแพ็กเกจใหญ่              |
+| `TX_UNKNOWN`             | ไม่สามารถตรวจสอบเพราะ package ล้มเหลว                               |
+
 นอกจากนี้ใน consensus ยังมีอีกหลายไฟล์ไม่ว่าจะเป็น `markle.cpp`, `markle.h` ที่เป็นวิธีในการคำนวณ merkle root, `tx_check.cpp`, `tx_check.h`, `tx_verify.cpp`,`tx_verify.h` ที่ใช้ check เกี่ยวกับ transaction เช่นส่วนไหนขนาดเท่าไหร่ มีการใช้ input ที่มีอยู่จริงมั้ย
+`params.h` ที่คอยเก็บพารามิเตอร์ที่อาจต่างกันระหว่างเครือข่าย ไม่ว่าจะเป็น mainnet, testnet, regtest
 ## relay policy
