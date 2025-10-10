@@ -33,10 +33,21 @@ Consensus rules คือกฎพื้นฐานซึ่งทำหน้�
 15 static const unsigned int MAX_BLOCK_WEIGHT = 4000000;
 17 static const int64_t MAX_BLOCK_SIGOPS_COST = 80000;
 19 static const int COINBASE_MATURITY = 100;
+21 static const int WITNESS_SCALE_FACTOR = 4;
+23 static const size_t MIN_TRANSACTION_WEIGHT = WITNESS_SCALE_FACTOR * 60; 
+24 static const size_t MIN_SERIALIZABLE_TRANSACTION_WEIGHT = WITNESS_SCALE_FACTOR * 10;
+28 static constexpr unsigned int LOCKTIME_VERIFY_SEQUENCE = (1 << 0);
+35 static constexpr int64_t MAX_TIMEWARP = 600;
 ```
-ในส่วนนี้มีการกำหนดค่าอยู่ทั้งหมด 4 อย่าง: 
+ในไฟล์นี้มีการกำหนดค่าอยู่ทั้งหมด 9 อย่าง: 
 - MAX_BLOCK_SERIALIZED_SIZE: จำกัดขนาดสูงสุดของข้อมูลบล็อกเมื่อ serialize แล้ว (4 MB) ใช้เป็น buffer limit ในหน่วย byte
 - MAX_BLOCK_WEIGHT: เป็น “น้ำหนักบล็อก” ตามนิยามใน BIP141 (SegWit) ใช้คำนวณโดยนำ witness data มาคิดลดสัดส่วน (weight = base_size * 3 + total_size) ดังนั้นบล็อกที่ใหญ่สุดจะมี weight ไม่เกิน 4,000,000 หน่วย
 - MAX_BLOCK_SIGOPS_COST: จำกัดจำนวน signature verification operations ต่อ block → เพื่อป้องกันการโจมตีแบบ CPU exhaustion (ผู้โจมตีใส่ธุรกรรมที่ต้องตรวจลายเซ็นจำนวนมากให้โหนดคำนวณช้า)
 - COINBASE_MATURITY: จำนวนบล๊อกที่ต้องรอก่อนจะสามารถนำเงินจาก coinbase transaction มาใช้ได้
+- WITNESS_SCALE_FACTOR: ค่าคงที่ที่ใช้ในการคำนวณน้ำหนักบล็อก (block weight) และน้ำหนักธุรกรรม (transaction weight) กำหนดว่าส่วนข้อมูลที่ไม่ใช่ witness จะถูกคูณด้วย 4
+- MIN_TRANSACTION_WEIGHT, MIN_SERIALIZABLE_TRANSACTION_WEIGHT: กำหนดขนาดเล็กสุดของธุรกรรมที่ถูกต้อง (เพื่อกัน invalid tx ที่มีโครงสร้างไม่ครบ)
+- LOCKTIME_VERIFY_SEQUENCE: ธง (flag) ที่ระบุให้ระบบตีความ nSequence เป็น relative lock-time → ใช้ในฟีเจอร์เช่น CheckSequenceVerify (CSV)
+- MAX_TIMEWARP: ข้อจำกัดของเวลาระหว่างช่วง difficulty adjustment  ตาม BIP94, timestamp ของบล็อกในรอบปรับความยาก (2016 blocks) สามารถย้อนหลังได้มากที่สุด 600 วินาที (10 นาที) จากบล็อกสุดท้ายของรอบก่อนหน้า
+
+นอกจากนี้ใน consensus ยังมีอีกหลายไฟล์ไม่ว่าจะเป็น `markle.cpp`, `markle.h` ที่เป็นวิธีในการคำนวณ merkle root, `tx_check.cpp`, `tx_check.h`, `tx_verify.cpp`,`tx_verify.h` ที่ใช้ check เกี่ยวกับ transaction เช่นส่วนไหนขนาดเท่าไหร่ มีการใช้ input ที่มีอยู่จริงมั้ย
 ## relay policy
