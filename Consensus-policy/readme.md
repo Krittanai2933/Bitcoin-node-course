@@ -153,4 +153,32 @@ enum class BlockValidationResult { ... };
 - อื่น ๆ: `settings.h`, `settings.cpp`, `packages.h`, `packages.cpp`, `truc_policy.h`, `truc_policy.cpp`
 - ตัวกำหนดค่า policy หลัก ๆ: `policy.h`, `policy.cpp`
 
-โดยในการเรียนครั้งนี้เนื่องจากเวลาที่เรามีค่อนข้างจำกัด ฉะนั้นผมจะขอพูดถึงแค่
+โดยในการเรียนครั้งนี้เนื่องจากเวลาที่เรามีค่อนข้างจำกัด ฉะนั้นผมจะขอพูดถึงแค่ไฟล์ `policy.h` เป็นหลัก (แต่ไม่ต้องห่วงนะครับรับรองได้ว่าเนื้อหาครอบคลุมทุกส่วนแน่นอน) ซึ่งในไฟล์นี้เนี่ยแบ่งส่วนสำคัญออกเป็น 7 ส่วนหลัก ๆ 
+1. Block/Transaction Limits
+   ```
+    static constexpr unsigned int DEFAULT_BLOCK_MAX_WEIGHT{MAX_BLOCK_WEIGHT};
+    static constexpr unsigned int DEFAULT_BLOCK_RESERVED_WEIGHT{8000};
+    static constexpr int32_t MAX_STANDARD_TX_WEIGHT{400000};
+    static constexpr unsigned int MIN_STANDARD_TX_NONWITNESS_SIZE{65};
+   ```
+   ในส่วนนี้เป็นการกำหนดถึงค่าต่าง ๆ เริ่มจากขนาดของบล๊อก `DEFAULT_BLOCK_MAX_WEIGHT` ให้เท่ากับขนาดของ `MAX_BLOCK_WEIGHT` ที่ถูกกำหนดไว้ใน consensus เป็น 4,000,000 Byte `DEFAULT_BLOCK_RESERVED_WEIGHT` หรือก็คือส่วนของ block header ให้มีขนาด 8,000 Byte `MAX_STANDARD_TX_WEIGHT` หรือก็คือขนาดสูงสุดที่เป็นไปได้ใน 1 ธุรกรรม ซึ่งเดิมจะถูกตั้งค่าไว้เป็น 400,000 B หรือ 1/10 ของขนาดบล๊อก ส่วนตัวสุดท้ายจะเป็น `MIN_STANDARD_TX_NONWITNESS_SIZE` หรือก็คือขนาดต่ำสุดของธุรกรรมที่ไม่ใช่ประเภท segwit (เพื่อป้องกันไม่ให้มีการประกาศธุรกรรมที่ไม่สมบูรณ์)
+
+2. Fee Policy & Dust Rules
+   ```
+    static constexpr unsigned int DUST_RELAY_TX_FEE{3000};
+    static constexpr unsigned int DEFAULT_MIN_RELAY_TX_FEE{100};
+    static constexpr unsigned int DEFAULT_BLOCK_MIN_TX_FEE{1};
+   ```
+   ```
+    CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFee);
+    bool IsDust(const CTxOut& txout, const CFeeRate& dustRelayFee);
+    std::vector<uint32_t> GetDust(const CTransaction& tx, CFeeRate dust_relay_rate);
+
+   ```
+   ในส่วนนี้จะเป็นนโยบายที่เกี่ยวกับค่าธรรมเนียมในการทำธุรกรรม และการกำหนดว่าธุรกรรมแบบไหนที่จะถูกมองว่าเป็น dust โดยเริ่มจาก `DUST_RELAY_TX_FEE` ซึ่งมีค่าเริ่มต้นเป็น 3,000 ตัวนี้เป็น “อัตรา feerate” (sat/kVB) ที่ใช้คำนวณ threshold ใน `GetDustThreshold` เช่น ถ้าต้องใช้ 148 bytes เพื่อใช้จ่าย → 148 * 3 sat = 444 sat ดังนั้น output ที่น้อยกว่า 444 sat จะถือเป็น “dust” ตัวต่อมาคือ `DEFAULT_MIN_RELAY_TX_FEE` หรือก็คือค่าธรรมเนียมต่ำสุดที่ยอมให้ relay (sat/kvB) ซึ่งมีค่าเริ่มต้นเป็น 100 หรือ 0.1 sat/vb ค่าคงตัวอีกตัวหนึ่งคือ `DEFAULT_BLOCK_MIN_TX_FEE` ค่าธรรมเนียมต่ำสุดที่นักขุดจะใส่ในบล็อก ซึ่งมีค่าเริ่มต้นมาเป็น 1 ส่วนฟังก์ชันที่เหลือใช้ตรวจว่า output ไหน “ต่ำเกินไป” (dust) และควรถูกกรองออกจาก mempool
+
+3. Standard Script Verification Flags
+    ```
+    static constexpr script_verify_flags MANDATORY_SCRIPT_VERIFY_FLAGS{...};
+    static constexpr script_verify_flags STANDARD_SCRIPT_VERIFY_FLAGS{MANDATORY_SCRIPT_VERIFY_FLAGS | ...};
+    ```
