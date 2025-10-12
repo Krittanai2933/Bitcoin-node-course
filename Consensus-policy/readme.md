@@ -182,3 +182,56 @@ enum class BlockValidationResult { ... };
     static constexpr script_verify_flags MANDATORY_SCRIPT_VERIFY_FLAGS{...};
     static constexpr script_verify_flags STANDARD_SCRIPT_VERIFY_FLAGS{MANDATORY_SCRIPT_VERIFY_FLAGS | ...};
     ```
+    ในส่วนนี้แบ่งออกเป็นสองส่วนตามตารางนี้
+
+| ประเภท                     | ใช้ที่ไหน                            | เป้าหมาย                                                      |
+| -------------------------- | ------------------------------------ | ------------------------------------------------------------- |
+| **MANDATORY SCRIPT FLAGS** | ใช้ตอน *ตรวจสอบ block*               | ต้องเหมือนกันทุกโหนด                                          |
+| **Standard Script Flags**  | ใช้ตอน *ตรวจสอบ tx ก่อนเข้า mempool* | ป้องกัน spam, เพิ่มความเข้ากันได้, ป้องกันการใช้ฟีเจอร์แปลก ๆ |
+
+แปลว่าหากธุรกรรมใดไม่ผ่าน flag เหล่านี้ จะ invalid ทันทีในทุกโหนด และยังเป็น “พื้นฐาน” ของ standardness ด้วย
+
+| Flag                                | รายละเอียด                               |
+| ----------------------------------- | -------------------------------------------- |
+| `SCRIPT_VERIFY_P2SH`                | เปิดใช้การตรวจสอบ Pay-to-Script-Hash (BIP16) |
+| `SCRIPT_VERIFY_DERSIG`              | บังคับใช้รูปแบบลายเซ็น DER (BIP66)           |
+| `SCRIPT_VERIFY_NULLDUMMY`           | ต้องมี byte 0 ใน dummy element (BIP147)      |
+| `SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY` | เปิดใช้ OP_CHECKLOCKTIMEVERIFY (BIP65)       |
+| `SCRIPT_VERIFY_CHECKSEQUENCEVERIFY` | เปิดใช้ OP_CHECKSEQUENCEVERIFY (BIP112)      |
+| `SCRIPT_VERIFY_WITNESS`             | เปิดใช้ SegWit (BIP141)                      |
+| `SCRIPT_VERIFY_TAPROOT`             | เปิดใช้ Taproot (BIP341)                     |
+
+และ Standard Script Flags เปรียบเสมือน “กฎเพิ่มพิเศษ” สำหรับธุรกรรมใน mempool ไม่ทำให้ invalid ตาม consensus  เพียงแต่จะไม่ถูก relay ต่อเท่านั้น โดยมีรายละเอียดตามตารางต่อไปนี้
+
+| Flag                                                  | ความหมาย                                                  | เหตุผล                                                   |
+| ----------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------- |
+| `SCRIPT_VERIFY_STRICTENC`                             | ต้องเข้ารหัส pubkey และ signature ให้ถูกต้องตามรูปแบบ     | ป้องกันลายเซ็นแปลก ๆ ที่อาจก่อช่องโหว่                   |
+| `SCRIPT_VERIFY_MINIMALDATA`                           | ต้องใช้จำนวน byte น้อยที่สุดในการ push ข้อมูล             | ป้องกัน script ที่ “ยุ่งเหยิง” และกินพื้นที่โดยไม่จำเป็น |
+| `SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS`            | ห้ามใช้ OP_NOP ที่อาจถูกใช้ในอนาคต                        | ป้องกันการรัน opcodes ที่อาจเปลี่ยนความหมายภายหลัง       |
+| `SCRIPT_VERIFY_CLEANSTACK`                            | หลังประมวลผล script ต้องเหลือค่าบน stack แค่ 1 ค่า        | เพื่อให้ script มีผลชัดเจน (true/false เดียว)            |
+| `SCRIPT_VERIFY_MINIMALIF`                             | ค่าที่ใช้กับ OP_IF ต้องเป็น 0 หรือ 1 เท่านั้น             | ทำให้ script มีรูปแบบที่คาดเดาได้                        |
+| `SCRIPT_VERIFY_NULLFAIL`                              | การตรวจสอบ signature ที่ล้มเหลว ต้องให้ลายเซ็นเป็นค่าว่าง | ลดโอกาสใช้ข้อมูลผิดพลาดในการทำ side-channel attack       |
+| `SCRIPT_VERIFY_LOW_S`                                 | Signature ต้องอยู่ใน canonical form (low-S)               | ลดความเสี่ยงจาก transaction malleability                 |
+| `SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM` | ป้องกัน witness program ที่ใช้ version ยังไม่รองรับ       | ป้องกันการ relay ของฟีเจอร์อนาคต                         |
+| `SCRIPT_VERIFY_WITNESS_PUBKEYTYPE`                    | จำกัดให้ pubkey ใน witness เป็นประเภทที่รองรับเท่านั้น    | รักษาความสม่ำเสมอของ SegWit                              |
+| `SCRIPT_VERIFY_CONST_SCRIPTCODE`                      | ห้ามแก้ไข script code ขณะประมวลผล                         | เพิ่มความปลอดภัยของ Taproot                              |
+| `SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_TAPROOT_VERSION` | ป้องกันการใช้ Taproot version ที่ยังไม่รองรับ             | ป้องกันการ relay ของ tx ที่อาจไม่ถูกต้องในอนาคต          |
+| `SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS`                 | ปิดการใช้งาน OP_SUCCESS จนกว่าจะถูกกำหนดอย่างเป็นทางการ   | ป้องกันการใช้ฟังก์ชันอนาคตผิดวัตถุประสงค์                |
+| `SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE`      | จำกัดชนิดของ pubkey ที่อนุญาต                             | ป้องกัน pubkey แปลกที่อาจไม่เข้ากับ Taproot              |
+
+เหตุผลที่ต้องตรวจ `เข้มกว่า` consensus เพราะ Bitcoin Core ตั้งใจให้ ธุรกรรมที่อยู่ใน mempool ต้องปลอดภัย และเข้ากันได้ในอนาคต แม้บางอย่างจะ ยังไม่ผิดตาม consensus ก็ตาม เช่น ธุรกรรมที่ใช้ OP_SUCCESS ในตอนนี้ยังไม่มีความหมาย ใน consensusแต่ในอนาคต อาจถูกนิยามใหม่ ทำให้เกิดปัญหาความเข้ากันได้ ดังนั้น Bitcoin Core จึงเลือก `ไม่ relay` ธุรกรรมแบบนี้
+
+4. การตรวจสอบธุรกรรมมาตรฐาน
+```
+bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_datacarrier_bytes, bool permit_bare_multisig, const CFeeRate& dust_relay_fee, std::string& reason);
+bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs);
+bool IsWitnessStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs);
+```
+ฟังก์ชันเหล่านี้ใช้ในการตรวจสอบว่าแต่ละส่วนภายในธุรกรรมนั้นเป็นไปตาม standard หรือไม่ 
+- `IsStandardTx`: ตรวจสอบว่า outputs ใช้ scriptPubKey รูปแบบมาตรฐานหรือไม่ เช่น p2pkh, p2tr, p2sh ไหม ถ้าไม่ใช่ธุรกรรมเหล่านั้นจะไม่ถูกนำเข้า mempool และส่งต่ออกไป
+- `AreInputsStandard`: ตรวจสอบว่า scriptSig ที่ใช้ปลดล็อก inputs นั้นซับซ้อนเกินไปหรือไม่ เช่น ใช้ P2SH ที่มี sigops เกิน 15 จะถูกนับว่าเป็น non-standard และไม่ relay ธุรกรรมต่อ
+- `IsWitnessStandard`: ตรวจสอบว่า witness data (SegWit/Taproot) ถูกต้องตามมาตรฐานหรือไม่
+    - จำกัดขนาด witness script ≤ 3600 bytes
+    - จำกัดจำนวน stack items ≤ 100
+    - จำกัดขนาดต่อ item ≤ 80 bytes
+    - ปฏิเสธ annexes ใน Tapscript (เพราะยังไม่ใช้ใน consensus)    
