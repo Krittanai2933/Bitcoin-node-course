@@ -246,3 +246,9 @@ int64_t GetVirtualTransactionSize(int64_t nWeight, int64_t nSigOpCost, unsigned 
 static constexpr unsigned int MAX_DUST_OUTPUTS_PER_TX{1};
 ```
 เชื่อมโยงกับไฟล์ `ephemeral_policy.h` ใช้เพื่อกำหนดว่าเราจะอนุญาตให้มี output ที่ถูกนับว่าเป็น dust มีได้สูงสุดกี่อันในหนึ่งธุรกรรม โดยค่าพื้นฐานถูกตั้งไว้ที่ 1
+
+7. Locktime Policy
+```
+static constexpr unsigned int STANDARD_LOCKTIME_VERIFY_FLAGS{LOCKTIME_VERIFY_SEQUENCE};
+```
+ใช้กำหนดว่าเมื่อ node ตรวจสอบ locktime (เช่น nLockTime หรือ nSequence) จะต้องใช้การตีความตาม BIP68 (relative locktime) เพื่อให้พฤติกรรมสอดคล้องกับ consensus แต่ไม่ต้องบังคับ
