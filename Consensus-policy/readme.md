@@ -235,3 +235,14 @@ bool IsWitnessStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs)
     - จำกัดจำนวน stack items ≤ 100
     - จำกัดขนาดต่อ item ≤ 80 bytes
     - ปฏิเสธ annexes ใน Tapscript (เพราะยังไม่ใช้ใน consensus)    
+5. Virtual Transaction Size
+```
+int64_t GetVirtualTransactionSize(int64_t nWeight, int64_t nSigOpCost, unsigned int bytes_per_sigop);
+```
+ใช้คำนวณ “ขนาดเสมือนจริง” (virtual size) ของธุรกรรม เอาไว้ใช้กับการคำนวณ fee rate (sat/vB) คำนวณจากทั้ง weight และจำนวน signature operations เพื่อให้สะท้อนค่าใช้จ่ายในการประมวลผล
+
+6. Ephemeral Dust Policy Integration
+```
+static constexpr unsigned int MAX_DUST_OUTPUTS_PER_TX{1};
+```
+เชื่อมโยงกับไฟล์ `ephemeral_policy.h` ใช้เพื่อกำหนดว่าเราจะอนุญาตให้มี output ที่ถูกนับว่าเป็น dust มีได้สูงสุดกี่อันในหนึ่งธุรกรรม โดยค่าพื้นฐานถูกตั้งไว้ที่ 1
