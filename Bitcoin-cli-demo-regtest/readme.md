@@ -21,10 +21,16 @@ bitcoin-cli help
 #สั่งหยุดการทำงานของโหนด
 bitcoin-cli stop
 ```
-2. Setup regtest
+2. Setup regtest + wallet basic
 ```
 #เปิดใช้งานโหนดในโหมด regtest
 bitcoind -regtest -daemon
+
+#สร้าง wallet
+bitcoin-cli -regtest createwallet "rsNodeCourse"
+
+#เช็คยอดคงเหลือ
+bitcoin-cli -regtest getbalance
 
 #สร้าง address
 bitcoin-cli -regtest getnewaddress
@@ -36,4 +42,4 @@ bitcoin-cli -regtest generatetoaddress 101 $address
 bitcoin-cli -regtest getblockchaininfo
 
 ```
-
+3. Transaction Workflow
