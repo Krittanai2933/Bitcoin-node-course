@@ -38,8 +38,27 @@ bitcoin-cli -regtest getnewaddress
 #ขุดบิตคอยน์ไปยัง address
 bitcoin-cli -regtest generatetoaddress 101 $address
 
+#เช็คยอดคงเหลือ
+bitcoin-cli -regtest getbalance
+
+#เช็ค UTXO
+bitcoin-cli -regtest listunspent
+
 #เช็คสถานะของบล๊อคเชน
 bitcoin-cli -regtest getblockchaininfo
-
 ```
 3. Transaction Workflow
+```
+# โอน Bitcoin ไปยัง address อื่น
+bitcoin-cli -regtest sendtoaddress bcrt1qq2yshcmzdlznnpxx258xswqlmqcxjs4dssfxt2 10
+
+#ขุดบล๊อกเพื่อยืนยันธุรกรรม
+bitcoin-cli -regtest generatetoaddress 1 $address
+
+#เช็คยอดหลังโอน
+bitcoin-cli -regtest getbalance
+
+#เช็คธุรกรรม
+bitcoin-cli -regtest getrawtransaction $txid true
+
+```
