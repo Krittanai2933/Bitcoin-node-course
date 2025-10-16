@@ -15,3 +15,12 @@ last update: 15/10/2025
 - [Bitcoin_cli](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/Bitcoin-cli-demo-regtest/regtest.md)
 
 ---
+# Day 2: session 1
+- [Secure_your_node](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/movie/1.rpcauth.md)
+- [runing electrum server](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/movie/2.electrum_server.md)
+- [BTC_rpc_explorer](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/movie/3.btc_rpc_explorer.md)
+
+# useful information
+- [WiFi_connect](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/movie/connect-wifi.md)
+- [wsl](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/movie/wsl.md)
+- [sparrow_wallet](https://github.com/Krittanai2933/Bitcoin-node-course/blob/main/movie/sparrow_wallet.md)
