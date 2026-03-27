@@ -16,7 +16,6 @@
 
 13:00-14:30 สอนใช้ block explorer + sparrow + trezor + nunchuck
 
-- Block explorer
-- Trezor
-- Nunchuck
-- tailscale
+- [Trezor](<./Day 2 Showcase (29-03-2026)/Trezor suite.md>)
+- [Nunchuck](<./Day 2 Showcase (29-03-2026)/Nunchuk.md>)
+- [Tailscale](<./Day 2 Showcase (29-03-2026)/Tailscale.md>)
