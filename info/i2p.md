@@ -1,6 +1,8 @@
-# ติดตั้ง i2pd สำหรับ Bitcoin Node (แบบ manual)
+# 3. ติดตั้ง i2pd สำหรับ Bitcoin Node
 
-## ติดตั้ง dependencies
+<img src="assets/i2p-Network-Layer.png" alt="i2p" width="200">
+
+## 3.1 ติดตั้ง dependencies
 
 ```bash
 sudo apt update
@@ -10,25 +12,25 @@ sudo apt update
 sudo apt install -y curl gnupg lsb-release
 ```
 
-## เพิ่ม i2pd repository
+## 3.2 เพิ่ม i2pd repository
 
 ```bash
 wget -q -O - https://repo.i2pd.xyz/.help/add_repo | sudo bash
 ```
 
-## อัปเดต package list
+## 3.3 อัปเดต package list
 
 ```bash
 sudo apt update
 ```
 
-## ติดตั้ง i2pd
+## 3.4 ติดตั้ง i2pd
 
 ```bash
 sudo apt install -y i2pd
 ```
 
-## ตั้งค่า i2pd
+## 3.5 ตั้งค่า i2pd
 
 สำรองไฟล์ config เดิม
 
@@ -36,7 +38,7 @@ sudo apt install -y i2pd
 sudo cp /etc/i2pd/i2pd.conf /etc/i2pd/i2pd.conf.bak
 ```
 
-แก้ config
+## 3.6 แก้ config
 
 ```bash
 sudo nano /etc/i2pd/i2pd.conf
@@ -61,7 +63,7 @@ address = 127.0.0.1
 port = 7070
 ```
 
-## ตั้ง permission
+## 3.7 ตั้ง permission
 
 ```bash
 sudo chown -R root:i2pd /etc/i2pd
@@ -71,7 +73,7 @@ sudo chown -R root:i2pd /etc/i2pd
 sudo chmod -R 0750 /etc/i2pd
 ```
 
-## เปิดใช้งาน i2pd
+## 3.8 เปิดใช้งาน i2pd
 
 ```bash
 sudo systemctl enable i2pd
@@ -81,7 +83,7 @@ sudo systemctl enable i2pd
 sudo systemctl start i2pd
 ```
 
-## เช็คสถานะ
+## 3.9 เช็คสถานะ
 
 ```bash
 systemctl status i2pd
@@ -92,3 +94,7 @@ systemctl status i2pd
 ```bash
 journalctl -u i2pd -n 50 --no-pager
 ```
+
+---- 
+
+[<< Tor](tor.md)  ||  [Bitcoin Core >>](bitcoin_node.md)

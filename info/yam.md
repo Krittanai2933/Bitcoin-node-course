@@ -1,4 +1,4 @@
-# YAM - Yet Another Monitor for Bitcoin Node
+# 5. YAM - Yet Another Monitor for Bitcoin Node
 
 yam is a terminal-based, fast, and lightweight monitor for your Bitcoin node and its surrounding services. Built with Rust and Ratatui, it provides a powerful dashboard and playground directly in your terminal.
 
@@ -6,6 +6,8 @@ yam is a terminal-based, fast, and lightweight monitor for your Bitcoin node and
 - 💻 System health tracking (CPU, RAM, Disk)
 - 🛠️ In-app Bitcoin.conf editor
 - ✨ RPC Playground with autocompletion
+
+<img src="assets/yam.png" alt="YAM" width="800">
 
 ## ติดตั้ง YAM
 
@@ -38,3 +40,7 @@ sudo cp target/release/yam /usr/local/bin/
 ```bash
 yam
 ```
+
+----
+
+[Back to info >>](README.md)
