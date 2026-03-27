@@ -6,7 +6,7 @@ Day1: (28/03/2026)
 1. ประกอบโหนดและติดตั้ง software ที่จำเป็น
     - [เอกสารประกอบการสอน](info/README.md)
 2. ลง softwareเสริมเพื่อเชื่อมต่อโหนดกับอุปกรณ์ภายนอก
-    - [เอกสารประกอบการสอน](movmovie/CourseOverView.md)
+    - [เอกสารประกอบการสอน](movie/CourseOverView.md)
 3. Basic node: โหนดคืออะไร มีกี่ imp และโหนดมีไว้ทำอะไร
     - [เอกสารประกอบการสอน](munich/BitcoinNodeDetails.pdf)
 ---
@@ -17,4 +17,4 @@ Day2: (29/03/2026)
     - [เอกสารประกอบการสอน](munich/networkBTC.pdf)
     - [เอกสารประกอบการสอน2](munich/bitcoin_regtest_demo.md)
 3. สอนใช้ software เชื่อมกับโหนด
-    - [เอกสารประกอบการสอน](movmovie/CourseOverView.md)
+    - [เอกสารประกอบการสอน](movie/CourseOverView.md)
