@@ -1,6 +1,6 @@
-# ตั้งค่า Firewall for Bitcoin Node
+# 1. ตั้งค่า Firewall for Bitcoin Node
 
-## อัปเดตระบบและติดตั้งเครื่องมือพื้นฐาน
+## 1.1 อัปเดตระบบและติดตั้งเครื่องมือพื้นฐาน
 
 ```bash
 sudo apt update && sudo apt upgrade -y
@@ -10,7 +10,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install wget curl gnupg tar ufw -y
 ```
 
-## ตั้งค่า Firewall
+## 1.2 ตั้งค่า Firewall
 เปิด Port เท่าที่จำเป็นต้องใช้
 
 ```bash

@@ -42,15 +42,15 @@
 
 ## Day 1: Session 1
 
-- [Firewall](firewall.md)
-- [Tor](tor.md)
-- [I2P](i2p.md)
-- [Bitcoin Core](bitcoin_node.md)
+- [1. Firewall](firewall.md)
+- [2. Tor](tor.md)
+- [3. I2P](i2p.md)
+- [4. Bitcoin Core](bitcoin_node.md)
 
 ----
 
 ## Day 1: Session 2
 
-- [Rust + Cargo](tools.md)
-- [Docker](tools.md#ติดตั้ง-docker)
-- [YAM](yam.md)
+- [5. Rust + Cargo](tools.md)
+- [6. Docker](tools.md#ติดตั้ง-docker)
+- [7. YAM](yam.md)
