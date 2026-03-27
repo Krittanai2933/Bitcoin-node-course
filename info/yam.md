@@ -43,4 +43,4 @@ yam
 
 ----
 
-[Home >>](README.md)
+[Back to info >>](README.md)

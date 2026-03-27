@@ -372,3 +372,7 @@ bitcoind-cli --version
 sudo systemctl restart bitcoind
 ```
 
+----
+
+[Back to info >>](README.md)
+
