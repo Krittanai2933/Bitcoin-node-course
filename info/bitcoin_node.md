@@ -1,34 +1,30 @@
-# Bitcoin Core for Raspberry Pi
+# 4. Bitcoin Core for Raspberry Pi
 
-## ดาวน์โหลดและตรวจสอบ Bitcoin Core
+<img src="assets/bitcoin-core.svg" alt="Bitcoin Core" width="600">
 
-ตั้งค่า version environment สำหรับติดตั้ง
+## 4.1 ดาวน์โหลดและตรวจสอบ Bitcoin Core
 
-```sh
-VERSION=30.2
-```
-
-ดาวน์โหลด Bitcoin core ลงเครื่อง
+### 4.1.1 ดาวน์โหลด Bitcoin core ลงเครื่อง
 
 ```bash
-wget https://bitcoincore.org/bin/bitcoin-core-$VERSION/bitcoin-$VERSION-aarch64-linux-gnu.tar.gz
+wget https://bitcoincore.org/bin/bitcoin-core-30.2/bitcoin-30.2-aarch64-linux-gnu.tar.gz
 ```
 
 > [github](https://github.com/bitcoin/bitcoin/)
 
-ดาวน์โหลด signatures ล่าสุด
+### 4.1.2 ดาวน์โหลด signatures ล่าสุด
 
 ```bash
-wget https://bitcoincore.org/bin/bitcoin-core-$VERSION/SHA256SUMS
+wget https://bitcoincore.org/bin/bitcoin-core-30.2/SHA256SUMS
 ```
 
 ```bash
-wget https://bitcoincore.org/bin/bitcoin-core-$VERSION/SHA256SUMS.asc
+wget https://bitcoincore.org/bin/bitcoin-core-30.2/SHA256SUMS.asc
 ```
 
 
 
-### นำเข้าคีย์ของผู้พัฒนาและตรวจสอบลายเซ็น
+### 4.1.3 นำเข้าคีย์ของผู้พัฒนาและตรวจสอบลายเซ็น
 
 นำเข้าคีย์ของผู้พัฒนา
 
@@ -46,7 +42,7 @@ gpg: no ultimately trusted keys found
 [...]
 ```
 
-ตรวจสอบ Signature
+### 4.1.4 ตรวจสอบ Signature
 
 ```bash
 gpg --verify SHA256SUMS.asc SHA256SUMS
@@ -57,7 +53,7 @@ gpg: Good signature from...
 Primary key fingerprint:...
 ```
 
-ตรวจสอบซอฟต์แวร์ว่าถูกต้องไหม
+### 4.1.5 ตรวจสอบซอฟต์แวร์ว่าถูกต้องไหม
 
 ```bash
 sha256sum --ignore-missing --check SHA256SUMS
@@ -69,73 +65,73 @@ bitcoin-30.0-aarch64-linux-gnu.tar.gz: OK
 
 
 
-## ติดตั้ง Bitcoin Core
+## 4.2 ติดตั้ง Bitcoin Core
 
-แตกไฟล์ Bitcoin core
-
-```bash
-tar -xzvf bitcoin-$VERSION-aarch64-linux-gnu.tar.gz
-```
-
-ติดตั้ง Bitcoin core
+### 4.2.1 แตกไฟล์ Bitcoin core
 
 ```bash
-sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-$VERSION/bin/bitcoin-cli bitcoin-$VERSION/bin/bitcoind
+tar -xzvf bitcoin-30.2-aarch64-linux-gnu.tar.gz
 ```
 
-ตรวจสอบเวอร์ชั่น
+### 4.2.2 ติดตั้ง Bitcoin core
+
+```bash
+sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-30.2/bin/bitcoin-cli bitcoin-30.2/bin/bitcoind
+```
+
+### 4.2.3 ตรวจสอบเวอร์ชั่น
 
 ```bash
 bitcoind --version
 ```
 
-ทดสอบ Bitcoin core โดยสั่งให้ทำงาน
+### 4.2.4 ทดสอบ Bitcoin core โดยสั่งให้ทำงาน
 
 ```bash
 bitcoind -daemon
 ```
 
-ตรวจสอบไฟล์ log 
+### 4.2.5 ตรวจสอบไฟล์ log 
 
 ```bash
 tail -f ~/.bitcoin/debug.log
 ```
 
-ตรวจสอบการซิงค์ของ Bitcoin core
+### 4.2.6 ตรวจสอบการซิงค์ของ Bitcoin core
 
 ```bash
 bitcoin-cli getblockchaininfo
 ```
 
-ตรวจสอบการเชื่อมต่อ Peers
+### 4.2.7 ตรวจสอบการเชื่อมต่อ Peers
 
 ```bash
 bitcoin-cli getconnectioncount
 ```
 
-ตรวจสอบ Bitcoin core เขื่อมต่อกับ network ไหนบ้าง
+### 4.2.8 ตรวจสอบ Bitcoin core เขื่อมต่อกับ network ไหนบ้าง
 
 ```bash
 bitcoin-cli -netinfo
 ```
 
-สั่ง Bitcoin core หยุดทำงาน
+### 4.2.9 สั่ง Bitcoin core หยุดทำงาน
 
 ```bash
 bitcoin-cli stop
 ```
 
-ลบไฟล์ติดตั้งที่ไม่ใช้แล้ว
+### 4.2.10 ลบไฟล์ติดตั้งที่ไม่ใช้แล้ว
 
 ```bash
-sudo rm -r bitcoin-$VERSION bitcoin-$VERSION-aarch64-linux-gnu.tar.gz SHA256SUMS SHA256SUMS.asc
+sudo rm -r bitcoin-30.2 bitcoin-30.2-aarch64-linux-gnu.tar.gz SHA256SUMS SHA256SUMS.asc
 ```
 
-### ตั้งค่า bitcoin.conf
+## 4.3 ตั้งค่า bitcoin.conf
 
 ตัวไฟล์คอนฟิกจะตั้งค่าไว้ให้ใช้ Tor อย่างเดียวเพื่อเชื่อมต่อ peer อาจทำให้ซิงค์ช้าลง
 
-สร้างไฟล์ bitcoin.conf
+### 4.3.1 สร้างไฟล์ bitcoin.conf
 
 ```bash
 nano ~/.bitcoin/bitcoin.conf
@@ -159,6 +155,8 @@ rpcallowip=127.0.0.1
 rpcallowip=10.0.0.0/8
 rpcallowip=172.0.0.0/8
 rpcallowip=192.0.0.0/8
+rpcuser=bitcoin
+rpcpassword=bitcoin
 
 zmqpubrawblock=tcp://0.0.0.0:28332
 zmqpubrawtx=tcp://0.0.0.0:28333
@@ -198,7 +196,7 @@ rpcallowip=127.0.0.1
 
 
 
-### สร้าง Systemd service
+## 4.4 สร้าง Systemd service
 
 การสร้าง Systemd Service เพื่อให้ระบบสามารถเรียกใช้ bitcoin daemon โดยอัตโนมัติในพื้นหลังได้หลังปิด-เปิดเครื่อง
 
@@ -278,7 +276,7 @@ WantedBy=multi-user.target
 > อย่าลืมเปลี่ยน USERNAME ให้ตรงกับ user ของคุณ
 > แหล่งอ้างอิง https://raw.githubusercontent.com/bitcoin/bitcoin/663f6cd9ddadeec30b27ec12f0f5ed49f3146cc9/contrib/init/bitcoind.service
 
-เปิดใช้งาน Bitcoind
+## 4.5 เปิดใช้งาน Bitcoind
 
 ```bash
 sudo systemctl enable bitcoind
