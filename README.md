@@ -16,3 +16,5 @@ Day2: (29/03/2026)
 2. bitcoin network & basic bitcoin-cli
     - [เอกสารประกอบการสอน](munich/networkBTC.pdf)
     - [เอกสารประกอบการสอน2](munich/bitcoin_regtest_demo.md)
+3. สอนใช้ software เชื่อมกับโหนด
+    - [เอกสารประกอบการสอน](movmovie/CourseOverView.md)
